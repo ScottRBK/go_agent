@@ -1,12 +1,16 @@
 package main
+
 import (
-"fmt"
-"bufio"
-"os"
-"errors"
-"context"
-"github.com/openai/openai-go/v3"
-"github.com/openai/openai-go/v3/option"
+	"bufio"
+	"context"
+	"errors"
+	"fmt"
+	"os"
+
+	"github.com/scottrbk/go_agent/config"
+
+	"github.com/openai/openai-go/v3"
+	"github.com/openai/openai-go/v3/option"
 )
 
 func main() {
@@ -34,9 +38,10 @@ func repl() {
 			fmt.Println("Error:", err)
 		}
 
-
 		exitCommands := map[string]bool{"exit": true, "q": true, "quit": true}
-		if exitCommands[userInput] { break }
+		if exitCommands[userInput] {
+			break
+		}
 
 		response, err := llm_request(userInput)
 
@@ -63,8 +68,8 @@ func prompt(msg string) (string, error) {
 func llm_request(userInput string) (string, error) {
 
 	client := openai.NewClient(
-		option.WithBaseURL("http://192.168.1.202:8080"),
-		option.WithAPIKey("not-needed"),
+		option.WithBaseURL(config.Settings.AgentsBaseURL),
+		option.WithAPIKey(config.Settings.AgentsAPIKey),
 	)
 
 	ctx := context.Background()
@@ -75,7 +80,7 @@ func llm_request(userInput string) (string, error) {
 			Messages: []openai.ChatCompletionMessageParamUnion{
 				openai.UserMessage(userInput),
 			},
-			Model: "gpt-oss-120b",
+			Model: config.Settings.AgentsDefaultModel,
 		})
 
 	if err != nil {
